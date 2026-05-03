@@ -19,7 +19,10 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: stable
+          channel: stable
+
+      - name: Enable web
+        run: flutter config --enable-web
 
       - name: Install dependencies
         run: flutter pub get
@@ -27,7 +30,7 @@ jobs:
       - name: Build web
         run: flutter build web --release --base-href "/fin_assist/"
 
-      - name: Deploy
+      - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
