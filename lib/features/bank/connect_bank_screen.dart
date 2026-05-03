@@ -4,6 +4,8 @@ import '../../services/fake_bank_service.dart';
 class ConnectBankScreen extends StatelessWidget {
   final banks = ["Vietcombank", "Techcombank", "MB Bank"];
 
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
