@@ -3,37 +3,45 @@ import '../../models/expense_model.dart';
 import '../../services/storage_service.dart';
 
 class AddExpenseScreen extends StatelessWidget {
-  final nameCtrl = TextEditingController();
-  final amountCtrl = TextEditingController();
-
   AddExpenseScreen({super.key});
+
+  final name = TextEditingController();
+  final amount = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Thêm chi tiêu")),
+      appBar: AppBar(title: const Text("Add Expense")),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            TextField(controller: nameCtrl),
             TextField(
-              controller: amountCtrl,
-              keyboardType: TextInputType.number,
+              controller: name,
+              decoration:
+                  const InputDecoration(labelText: "Name"),
             ),
+            TextField(
+              controller: amount,
+              keyboardType: TextInputType.number,
+              decoration:
+                  const InputDecoration(labelText: "Amount"),
+            ),
+            const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () async {
-                final e = Expense(
-                  id: DateTime.now().toString(),
-                  name: nameCtrl.text,
-                  amount: double.tryParse(amountCtrl.text) ?? 0,
-                  category: "Other",
+                await StorageService.addExpense(
+                  Expense(
+                    id: DateTime.now().toString(),
+                    name: name.text,
+                    amount:
+                        double.tryParse(amount.text) ?? 0,
+                    category: "Other",
+                  ),
                 );
-
-                await StorageService.addExpense(e);
                 Navigator.pop(context);
               },
-              child: const Text("Lưu"),
+              child: const Text("Save"),
             )
           ],
         ),

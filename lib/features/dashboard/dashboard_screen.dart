@@ -8,10 +8,6 @@ import '../../core/utils/insight_engine.dart';
 import '../bank/connect_bank_screen.dart';
 import '../add_expense/add_expense_screen.dart';
 
-import 'widgets/leftover_card.dart';
-import 'widgets/expense_chart.dart';
-import 'widgets/budget_inline_card.dart';
-
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
 
@@ -20,68 +16,41 @@ class DashboardScreen extends StatefulWidget {
       _DashboardScreenState();
 }
 
-class _DashboardScreenState
-    extends State<DashboardScreen> {
+class _DashboardScreenState extends State<DashboardScreen> {
   List<Expense> expenses = [];
-  List<BankAccount> bankAccounts = [];
+  List<BankAccount> banks = [];
 
   double budget = 0;
-  int budgetDays = 30;
-
-  final ScrollController _scrollController =
-      ScrollController();
-
-  bool showFab = true;
-  double lastOffset = 0;
+  int days = 30;
 
   @override
   void initState() {
     super.initState();
     load();
-
-    /// FAB hide/show
-    _scrollController.addListener(() {
-      if (!_scrollController.hasClients) return;
-
-      final offset = _scrollController.offset;
-
-      if (offset > lastOffset + 5) {
-        if (showFab) setState(() => showFab = false);
-      } else if (offset < lastOffset - 5) {
-        if (!showFab) setState(() => showFab = true);
-      }
-
-      lastOffset = offset;
-    });
-  }
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
   }
 
   Future<void> load() async {
     expenses = await StorageService.getExpenses();
     budget = await StorageService.getBudget();
-    budgetDays = await StorageService.getBudgetDays();
+    days = await StorageService.getBudgetDays();
     setState(() {});
   }
 
-  /// ================= BANK =================
+  double get total =>
+      expenses.fold(0.0, (s, e) => s + e.amount);
 
   double get totalBank =>
-      bankAccounts.fold(0.0, (sum, b) => sum + b.balance);
+      banks.fold(0.0, (s, b) => s + b.balance);
 
-  BankAccount? get activeAccount {
+  BankAccount? get active {
     try {
-      return bankAccounts.firstWhere((b) => b.isActive);
+      return banks.firstWhere((b) => b.isActive);
     } catch (_) {
-      return bankAccounts.isNotEmpty
-          ? bankAccounts.first
-          : null;
+      return banks.isNotEmpty ? banks.first : null;
     }
   }
+
+  /// ================= BANK =================
 
   Future<void> connectBank() async {
     final result = await Navigator.push(
@@ -94,9 +63,8 @@ class _DashboardScreenState
       final acc = result as BankAccount;
 
       setState(() {
-        bankAccounts.add(
-          acc.copyWith(
-              isActive: bankAccounts.isEmpty),
+        banks.add(
+          acc.copyWith(isActive: banks.isEmpty),
         );
       });
     }
@@ -104,22 +72,16 @@ class _DashboardScreenState
 
   void setActive(String id) {
     setState(() {
-      bankAccounts = bankAccounts.map((b) {
-        return b.copyWith(isActive: b.id == id);
-      }).toList();
+      banks = banks
+          .map((b) =>
+              b.copyWith(isActive: b.id == id))
+          .toList();
     });
   }
 
   void unlink(String id) {
     setState(() {
-      bankAccounts.removeWhere((b) => b.id == id);
-
-      /// đảm bảo luôn có active
-      if (!bankAccounts.any((b) => b.isActive) &&
-          bankAccounts.isNotEmpty) {
-        bankAccounts[0] =
-            bankAccounts[0].copyWith(isActive: true);
-      }
+      banks.removeWhere((b) => b.id == id);
     });
   }
 
@@ -128,7 +90,7 @@ class _DashboardScreenState
         await FakeBankService.refreshBalance();
 
     setState(() {
-      bankAccounts = bankAccounts.map((b) {
+      banks = banks.map((b) {
         return b.id == id
             ? b.copyWith(balance: newBalance)
             : b;
@@ -138,14 +100,10 @@ class _DashboardScreenState
 
   /// ================= EXPENSE =================
 
-  double get totalExpense =>
-      expenses.fold(0.0, (sum, e) => sum + e.amount);
-
-  void _editExpense(Expense e) async {
-    final nameCtrl =
-        TextEditingController(text: e.name);
-    final amountCtrl = TextEditingController(
-        text: e.amount.toString());
+  void editExpense(Expense e) async {
+    final name = TextEditingController(text: e.name);
+    final amount =
+        TextEditingController(text: e.amount.toString());
 
     final ok = await showDialog<bool>(
       context: context,
@@ -154,9 +112,9 @@ class _DashboardScreenState
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(controller: nameCtrl),
+            TextField(controller: name),
             TextField(
-              controller: amountCtrl,
+              controller: amount,
               keyboardType: TextInputType.number,
             ),
           ],
@@ -175,15 +133,15 @@ class _DashboardScreenState
     );
 
     if (ok == true) {
-      final updated = Expense(
-        id: e.id,
-        name: nameCtrl.text,
-        amount:
-            double.tryParse(amountCtrl.text) ?? 0,
-        category: e.category,
+      await StorageService.updateExpense(
+        Expense(
+          id: e.id,
+          name: name.text,
+          amount:
+              double.tryParse(amount.text) ?? 0,
+          category: e.category,
+        ),
       );
-
-      await StorageService.updateExpense(updated);
       load();
     }
   }
@@ -192,284 +150,159 @@ class _DashboardScreenState
 
   @override
   Widget build(BuildContext context) {
-    final sourceMoney = bankAccounts.isNotEmpty
-        ? (activeAccount?.balance ?? totalBank)
-        : budget;
+    final source =
+        banks.isNotEmpty ? (active?.balance ?? totalBank) : budget;
 
-    final remaining = sourceMoney - totalExpense;
-
-    final now = DateTime.now();
-    final daysLeft =
-        (budgetDays - now.day).clamp(0, 999);
+    final remaining = source - total;
 
     final insights = InsightEngine.analyze(
-      budget: sourceMoney,
-      total: totalExpense,
-      budgetDays: budgetDays,
+      budget: source,
+      total: total,
+      budgetDays: days,
       expenses: expenses,
     );
 
+    final isDesktop =
+        MediaQuery.of(context).size.width > 800;
+
     return Scaffold(
-      /// FAB animation
-      floatingActionButton: AnimatedSlide(
-        duration: const Duration(milliseconds: 300),
-        offset: showFab
-            ? const Offset(0, 0)
-            : const Offset(0, 2),
-        child: AnimatedOpacity(
-          duration: const Duration(milliseconds: 300),
-          opacity: showFab ? 1 : 0,
-          child: FloatingActionButton(
-            onPressed: () async {
-              await Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (_) =>
-                        AddExpenseScreen()),
-              );
-              load();
-            },
-            child: const Icon(Icons.add),
-          ),
-        ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          await Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (_) => AddExpenseScreen()),
+          );
+          load();
+        },
+        child: const Icon(Icons.add),
       ),
 
-      body: CustomScrollView(
-        controller: _scrollController,
-        slivers: [
+      body: Row(
+        children: [
 
-          /// APP BAR
-          const SliverAppBar(
-            pinned: true,
-            title: Text("Dashboard"),
-          ),
-
-          /// HEADER
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
+          /// SIDEBAR (WEB)
+          if (isDesktop)
+            Container(
+              width: 220,
+              color: const Color(0xFF0F172A),
               child: Column(
-                children: [
-
-                  /// TOTAL BALANCE
-                  if (bankAccounts.isNotEmpty)
-                    Container(
-                      padding:
-                          const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.black,
-                        borderRadius:
-                            BorderRadius.circular(
-                                16),
-                      ),
-                      child: Column(
-                        children: [
-                          const Text("Tổng số dư",
-                              style: TextStyle(
-                                  color:
-                                      Colors.white70)),
-                          Text(
-                            "${totalBank.toStringAsFixed(0)}đ",
-                            style:
-                                const TextStyle(
-                              fontSize: 24,
-                              color: Colors.white,
-                              fontWeight:
-                                  FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                  const SizedBox(height: 12),
-
-                  /// BANK LIST
-                  ...bankAccounts.map((b) {
-                    return GestureDetector(
-                      onTap: () => setActive(b.id),
-                      child: Opacity(
-                        opacity:
-                            b.isActive ? 1 : 0.5,
-                        child: Container(
-                          margin:
-                              const EdgeInsets.only(
-                                  bottom: 10),
-                          padding:
-                              const EdgeInsets.all(
-                                  16),
-                          decoration: BoxDecoration(
-                            color: b.isActive
-                                ? Colors.blue
-                                : Colors.grey
-                                    .shade200,
-                            borderRadius:
-                                BorderRadius
-                                    .circular(16),
-                          ),
-                          child: Row(
-                            mainAxisAlignment:
-                                MainAxisAlignment
-                                    .spaceBetween,
-                            children: [
-                              Column(
-                                crossAxisAlignment:
-                                    CrossAxisAlignment
-                                        .start,
-                                children: [
-                                  Text(b.bankName),
-                                  Text(
-                                      b.accountNumber),
-                                ],
-                              ),
-                              Column(
-                                children: [
-                                  Text(
-                                      "${b.balance.toStringAsFixed(0)}đ"),
-                                  PopupMenuButton(
-                                    onSelected:
-                                        (value) {
-                                      if (value ==
-                                          "refresh") {
-                                        refresh(
-                                            b.id);
-                                      }
-                                      if (value ==
-                                          "unlink") {
-                                        unlink(
-                                            b.id);
-                                      }
-                                    },
-                                    itemBuilder:
-                                        (_) => [
-                                      const PopupMenuItem(
-                                          value:
-                                              "refresh",
-                                          child: Text(
-                                              "Refresh")),
-                                      const PopupMenuItem(
-                                          value:
-                                              "unlink",
-                                          child: Text(
-                                              "Huỷ")),
-                                    ],
-                                  )
-                                ],
-                              )
-                            ],
-                          ),
-                        ),
-                      ),
-                    );
-                  }),
-
-                  ElevatedButton(
-                    onPressed: connectBank,
-                    child: const Text(
-                        "+ Thêm ngân hàng"),
-                  ),
-
-                  /// HERO
-                  LeftoverCard(
-                    remaining: remaining,
-                    daysLeft: daysLeft,
-                  ),
-
-                  /// BUDGET fallback
-                  if (bankAccounts.isEmpty)
-                    BudgetInlineCard(
-                      budget: budget,
-                      days: budgetDays,
-                      onSave: (b, d) async {
-                        await StorageService
-                            .saveBudget(b);
-                        await StorageService
-                            .saveBudgetDays(d);
-                        load();
-                      },
-                    ),
-
-                  const SizedBox(height: 16),
-
-                  /// CHART
-                  ExpenseChart(expenses: expenses),
-
-                  const SizedBox(height: 16),
-
-                  /// INSIGHT
-                  ...insights.map((text) {
-                    return Container(
-                      margin:
-                          const EdgeInsets.only(
-                              bottom: 8),
-                      padding:
-                          const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius:
-                            BorderRadius.circular(
-                                12),
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(Icons
-                              .auto_awesome),
-                          const SizedBox(width: 8),
-                          Expanded(
-                              child: Text(text)),
-                        ],
-                      ),
-                    );
-                  }),
+                children: const [
+                  SizedBox(height: 40),
+                  Text("Finance",
+                      style:
+                          TextStyle(color: Colors.white)),
                 ],
               ),
             ),
-          ),
 
-          /// EXPENSE LIST
-          SliverList(
-            delegate:
-                SliverChildBuilderDelegate(
-              (context, index) {
-                final e = expenses[index];
+          /// MAIN
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
 
-                return Dismissible(
-                  key: Key(e.id),
-                  direction:
-                      DismissDirection.endToStart,
-                  background: Container(
-                    color: Colors.red,
-                    alignment:
-                        Alignment.centerRight,
-                    padding:
-                        const EdgeInsets.only(
-                            right: 20),
-                    child: const Icon(
-                        Icons.delete,
-                        color: Colors.white),
+                /// BALANCE CARD
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [
+                        Color(0xFF6366F1),
+                        Color(0xFF8B5CF6)
+                      ],
+                    ),
+                    borderRadius:
+                        BorderRadius.circular(20),
                   ),
-                  onDismissed: (_) async {
-                    await StorageService
-                        .deleteExpense(e.id);
-                    load();
-                  },
-                  child: ListTile(
-                    title: Text(e.name),
-                    subtitle:
-                        Text(e.category),
-                    trailing: Text(
-                        "-${e.amount.toStringAsFixed(0)}đ"),
-                    onTap: () =>
-                        _editExpense(e),
+                  child: Column(
+                    crossAxisAlignment:
+                        CrossAxisAlignment.start,
+                    children: [
+                      const Text("Total Balance",
+                          style: TextStyle(
+                              color: Colors.white70)),
+                      Text(
+                        "${source.toStringAsFixed(0)}đ",
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
                   ),
-                );
-              },
-              childCount: expenses.length,
+                ),
+
+                const SizedBox(height: 16),
+
+                /// BANK LIST
+                ...banks.map((b) => Card(
+                      child: ListTile(
+                        title: Text(b.bankName),
+                        subtitle: Text(b.accountNumber),
+                        trailing: Column(
+                          children: [
+                            Text(
+                                "${b.balance.toStringAsFixed(0)}"),
+                            PopupMenuButton(
+                              onSelected: (v) {
+                                if (v == "refresh")
+                                  refresh(b.id);
+                                if (v == "unlink")
+                                  unlink(b.id);
+                              },
+                              itemBuilder: (_) => [
+                                const PopupMenuItem(
+                                    value: "refresh",
+                                    child: Text("Refresh")),
+                                const PopupMenuItem(
+                                    value: "unlink",
+                                    child: Text("Huỷ")),
+                              ],
+                            )
+                          ],
+                        ),
+                        onTap: () => setActive(b.id),
+                      ),
+                    )),
+
+                ElevatedButton(
+                  onPressed: connectBank,
+                  child: const Text("Thêm ngân hàng"),
+                ),
+
+                const SizedBox(height: 16),
+
+                /// INSIGHT
+                ...insights.map((i) => Container(
+                      margin:
+                          const EdgeInsets.only(bottom: 8),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius:
+                            BorderRadius.circular(12),
+                      ),
+                      child: Text(i),
+                    )),
+
+                const SizedBox(height: 16),
+
+                /// EXPENSE LIST
+                ...expenses.map((e) => ListTile(
+                      title: Text(e.name),
+                      trailing: Text(
+                          "-${e.amount.toStringAsFixed(0)}"),
+                      onTap: () => editExpense(e),
+                      onLongPress: () async {
+                        await StorageService.deleteExpense(
+                            e.id);
+                        load();
+                      },
+                    )),
+              ],
             ),
-          ),
-
-          const SliverToBoxAdapter(
-            child: SizedBox(height: 100),
           ),
         ],
       ),
