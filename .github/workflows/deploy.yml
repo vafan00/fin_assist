@@ -30,8 +30,10 @@ jobs:
 
       - name: Build web
         run: flutter build web --release --base-href "/fin_assist/"
+      
       - name: Debug build output
         run: ls -la build/web
+      
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
@@ -39,4 +41,7 @@ jobs:
           publish_dir: build/web
           publish_branch: gh-pages
           force_orphan: true
+      - name: Debug build output
+        run: |
+              ls -la build/web
       
