@@ -10,6 +10,7 @@ permissions:
 
 jobs:
   build-and-deploy:
+    
     runs-on: ubuntu-latest
 
     steps:
@@ -29,10 +30,11 @@ jobs:
 
       - name: Build web
         run: flutter build web --release --base-href "/fin_assist/"
-
+          
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: build/web
           force_orphan: true
+      
