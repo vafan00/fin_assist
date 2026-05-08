@@ -28,14 +28,14 @@ class _Cat {
 }
 
 const _cats = [
-  _Cat(label: 'Ăn uống',   icon: Icons.restaurant_outlined,     color: Color(0xFFFF9800)),
-  _Cat(label: 'Mua sắm',   icon: Icons.shopping_bag_outlined,   color: Color(0xFF9C27B0)),
-  _Cat(label: 'Hóa đơn',   icon: Icons.receipt_outlined,        color: Color(0xFF2196F3)),
-  _Cat(label: 'Di chuyển', icon: Icons.directions_car_outlined, color: Color(0xFF009688)),
-  _Cat(label: 'Sức khỏe',  icon: Icons.favorite_outline,        color: Color(0xFFE91E63)),
-  _Cat(label: 'Giải trí',  icon: Icons.sports_esports_outlined, color: Color(0xFF673AB7)),
-  _Cat(label: 'Học tập',   icon: Icons.menu_book_outlined,      color: Color(0xFF3F51B5)),
-  _Cat(label: 'Khác',      icon: Icons.category_outlined,       color: Color(0xFF607D8B)),
+  _Cat(label: 'Foods',   icon: Icons.restaurant_outlined,     color: Color(0xFFFF9800)),
+  _Cat(label: 'Shopping',   icon: Icons.shopping_bag_outlined,   color: Color(0xFF9C27B0)),
+  _Cat(label: 'Bills',   icon: Icons.receipt_outlined,        color: Color(0xFF2196F3)),
+  _Cat(label: 'Travel', icon: Icons.directions_car_outlined, color: Color(0xFF009688)),
+  _Cat(label: 'Health',  icon: Icons.favorite_outline,        color: Color(0xFFE91E63)),
+  _Cat(label: 'Entertainment',  icon: Icons.sports_esports_outlined, color: Color(0xFF673AB7)),
+  _Cat(label: 'Study',   icon: Icons.menu_book_outlined,      color: Color(0xFF3F51B5)),
+  _Cat(label: 'Other',      icon: Icons.category_outlined,       color: Color(0xFF607D8B)),
 ];
 
 // ════════════════════════════════════════════════════════════════════
@@ -194,7 +194,7 @@ class _AddExpenseDesktopState extends State<_AddExpenseDesktop>
               ),
               const SizedBox(height: 32),
 
-              const Text('CHI TIÊU MỚI', style: TextStyle(
+              const Text('NEW EXPENSES', style: TextStyle(
                 color: Colors.white60, fontSize: 11, fontWeight: FontWeight.w700, letterSpacing: 2,
               )),
               const SizedBox(height: 16),
@@ -211,7 +211,7 @@ class _AddExpenseDesktopState extends State<_AddExpenseDesktop>
                     )),
                     const SizedBox(height: 6),
                     Text(
-                      _amount > 0 ? 'đồng • ${_cats[_catIndex].label}' : 'nhập số tiền',
+                      _amount > 0 ? 'đồng • ${_cats[_catIndex].label}' : 'Enter the amount',
                       style: const TextStyle(color: Colors.white70, fontSize: 13),
                     ),
                   ],
@@ -236,12 +236,12 @@ class _AddExpenseDesktopState extends State<_AddExpenseDesktop>
                       children: [
                         const Text('Tóm tắt', style: TextStyle(color: Colors.white60, fontSize: 11, fontWeight: FontWeight.w700, letterSpacing: 1)),
                         const SizedBox(height: 10),
-                        _summaryRow(Icons.label_outline, 'Tên',
+                        _summaryRow(Icons.label_outline, 'Name',
                             _nameCtrl.text.trim().isEmpty ? _cats[_catIndex].label : _nameCtrl.text.trim()),
                         const SizedBox(height: 8),
-                        _summaryRow(_cats[_catIndex].icon, 'Danh mục', _cats[_catIndex].label),
+                        _summaryRow(_cats[_catIndex].icon, 'Category', _cats[_catIndex].label),
                         const SizedBox(height: 8),
-                        _summaryRow(Icons.attach_money, 'Số tiền', '${_display}đ'),
+                        _summaryRow(Icons.attach_money, 'Amount', '${_display}vnđ'),
                       ],
                     ),
                   ),
@@ -310,7 +310,7 @@ class _AddExpenseDesktopState extends State<_AddExpenseDesktop>
       controller: _nameCtrl,
       onChanged: (_) => setState(() {}),
       decoration: InputDecoration(
-        hintText: 'VD: Phở bò, Grab, Tiền điện...',
+        hintText: 'Examples: Beef pho, Grab, electricity bill...',
         hintStyle: const TextStyle(color: Color(0xFFCCCCCC), fontSize: 14),
         filled: true,
         fillColor: Colors.white,
@@ -417,7 +417,7 @@ class _AddExpenseDesktopState extends State<_AddExpenseDesktop>
             Icon(cat.icon, color: enabled ? Colors.white : Colors.grey.shade500, size: 16),
             const SizedBox(width: 8),
             Text(
-              enabled ? 'Lưu ${cat.label.toLowerCase()} • ${_display}đ' : 'Nhập số tiền để lưu',
+              enabled ? 'Save ${cat.label.toLowerCase()} • ${_display}vnđ' : 'Enter the amount',
               style: TextStyle(
                 color: enabled ? Colors.white : Colors.grey.shade500,
                 fontSize: 14, fontWeight: FontWeight.w700, letterSpacing: 0.3,
@@ -527,7 +527,7 @@ class _AddExpenseContentState extends State<_AddExpenseContent>
                 ),
               ),
               const Expanded(
-                child: Text('CHI TIÊU MỚI', textAlign: TextAlign.center,
+                child: Text('NEW EXPENSES', textAlign: TextAlign.center,
                   style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w700, letterSpacing: 2)),
               ),
               const SizedBox(width: 36),
@@ -542,7 +542,7 @@ class _AddExpenseContentState extends State<_AddExpenseContent>
                 )),
                 const SizedBox(height: 6),
                 Text(
-                  _amount > 0 ? 'đồng • ${_cats[_catIndex].label}' : 'nhập số tiền',
+                  _amount > 0 ? 'đồng • ${_cats[_catIndex].label}' : 'Enter the amount',
                   style: const TextStyle(color: Colors.white70, fontSize: 13),
                 ),
               ]),
@@ -588,7 +588,7 @@ class _AddExpenseContentState extends State<_AddExpenseContent>
         TextField(
           controller: _nameCtrl,
           decoration: const InputDecoration(
-            hintText: 'VD: Phở bò, Grab, Tiền điện...',
+            hintText: 'Examples: Beef pho, Grab, electricity bill...',
             hintStyle: TextStyle(color: Color(0xFFCCCCCC), fontSize: 14),
             border: InputBorder.none, isDense: true, contentPadding: EdgeInsets.zero,
           ),
@@ -747,7 +747,7 @@ class _AddExpenseContentState extends State<_AddExpenseContent>
           Icon(cat.icon, color: enabled ? Colors.white : Colors.grey.shade500, size: 18),
           const SizedBox(width: 8),
           Text(
-            enabled ? 'Lưu ${cat.label.toLowerCase()} • ${_display}đ' : 'Nhập số tiền để lưu',
+            enabled ? 'Save ${cat.label.toLowerCase()} • ${_display}vnđ' : 'Enter the amount',
             style: TextStyle(
               color: enabled ? Colors.white : Colors.grey.shade500,
               fontSize: 15, fontWeight: FontWeight.w700, letterSpacing: 0.3,

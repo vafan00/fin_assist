@@ -143,24 +143,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
       context: context,
       builder: (_) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text("Sửa chi tiêu"),
+        title: const Text("Adjust spending"),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _inputField(ctrl: name,   label: "Tên"),
+            _inputField(ctrl: name,   label: "Name"),
             const SizedBox(height: 12),
-            _inputField(ctrl: amount, label: "Số tiền (đ)", numeric: true),
+            _inputField(ctrl: amount, label: "Amount (vnđ)", numeric: true),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text("Huỷ", style: TextStyle(color: Colors.grey)),
+            child: const Text("Cancel", style: TextStyle(color: Colors.grey)),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: kGreen),
             onPressed: () => Navigator.pop(context, true),
-            child: const Text("Lưu"),
+            child: const Text("Save"),
           ),
         ],
       ),
@@ -237,10 +237,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _buildSidebar(R r) {
     final iconOnly = r.isTablet;
     final items = [
-      _SideItem(icon: Icons.grid_view_rounded,    label: "Tổng quan",  idx: 0),
-      _SideItem(icon: Icons.receipt_long_outlined, label: "Giao dịch", idx: 1),
-      _SideItem(icon: Icons.pie_chart_outline,    label: "Ngân sách", idx: 2),
-      _SideItem(icon: Icons.person_outline,       label: "Tôi",       idx: 3),
+      _SideItem(icon: Icons.grid_view_rounded,    label: "Overview",  idx: 0),
+      _SideItem(icon: Icons.receipt_long_outlined, label: "Transaction", idx: 1),
+      _SideItem(icon: Icons.pie_chart_outline,    label: "Budget", idx: 2),
+      _SideItem(icon: Icons.person_outline,       label: "Profile",       idx: 3),
     ];
 
     return AnimatedContainer(
@@ -276,7 +276,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
                 onPressed: _goAddExpense,
                 icon: const Icon(Icons.add, size: 18),
-                label: const Text("Thêm chi tiêu"),
+                label: const Text("Add Expense"),
               ),
             )
           else
@@ -358,11 +358,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
               const SizedBox(height: 16),
               Row(
                 children: [
-                  _summaryCard("Tổng balance", _fmtFull(source), icon: Icons.account_balance_wallet_outlined),
+                  _summaryCard("Total balance", _fmtFull(source), icon: Icons.account_balance_wallet_outlined),
                   const SizedBox(width: 12),
-                  _summaryCard("Đã chi", _fmtFull(total), icon: Icons.remove_circle_outline, negative: true),
+                  _summaryCard("Paid", _fmtFull(total), icon: Icons.remove_circle_outline, negative: true),
                   const SizedBox(width: 12),
-                  _summaryCard("Còn lại", _fmtFull(remaining), icon: Icons.savings_outlined, negative: remaining < 0),
+                  _summaryCard("Remaining", _fmtFull(remaining), icon: Icons.savings_outlined, negative: remaining < 0),
                 ],
               ),
               const SizedBox(height: 20),
@@ -406,9 +406,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
           children: [
             _statChip("Balance",  _fmt(source)),
             _divider(),
-            _statChip("Chi tiêu", _fmt(total)),
+            _statChip("Expense", _fmt(total)),
             _divider(),
-            _statChip("Còn lại",  _fmt(remaining),
+            _statChip("Remaining",  _fmt(remaining),
                 color: remaining < 0 ? Colors.redAccent[100]! : Colors.white),
           ],
         ),
@@ -427,14 +427,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
           Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text("khả dụng",
+              const Text("Available",
                   style: TextStyle(color: Colors.white70, fontSize: 11, letterSpacing: 0.5)),
               const SizedBox(height: 4),
               Text(
                 _fmt(remaining < 0 ? 0 : remaining),
                 style: TextStyle(color: Colors.white, fontSize: r.donutFont, fontWeight: FontWeight.bold),
               ),
-              const Text("đồng", style: TextStyle(color: Colors.white60, fontSize: 11)),
+              const Text("vnđ", style: TextStyle(color: Colors.white60, fontSize: 11)),
             ],
           ),
         ],
@@ -449,9 +449,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text("${(spentRatio * 100).toStringAsFixed(0)}% đã sử dụng",
+            Text("${(spentRatio * 100).toStringAsFixed(0)}% used",
                 style: const TextStyle(color: Colors.white70, fontSize: 11)),
-            Text("${_fmtFull(remaining)} còn lại",
+            Text("${_fmtFull(remaining)} remaining",
                 style: const TextStyle(color: Colors.white70, fontSize: 11)),
           ],
         ),
@@ -522,7 +522,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _sectionLabel("Tài khoản"),
+        _sectionLabel("Account"),
         const SizedBox(height: 12),
         GridView.count(
           crossAxisCount: r.accountCols,
@@ -570,9 +570,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 if (v == "active")  setActive(b.id);
               },
               itemBuilder: (_) => const [
-                PopupMenuItem(value: "active",  child: Text("Đặt chính")),
-                PopupMenuItem(value: "refresh", child: Text("Làm mới")),
-                PopupMenuItem(value: "unlink",  child: Text("Huỷ liên kết")),
+                PopupMenuItem(value: "active",  child: Text("Set main")),
+                PopupMenuItem(value: "refresh", child: Text("Refresh")),
+                PopupMenuItem(value: "unlink",  child: Text("Unlink")),
               ],
             ),
           ],
@@ -606,9 +606,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text("Số dư thủ công", style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                  const Text("Enter Manual", style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
                   Text(
-                    budget > 0 ? "${_fmtFull(budget)}đ" : "Chưa nhập — nhấn để cập nhật",
+                    budget > 0 ? "${_fmtFull(budget)}vnđ" : "Not Set — press to update",
                     style: TextStyle(
                       color: budget > 0 ? kGreen : Colors.grey,
                       fontSize: 11,
@@ -638,7 +638,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           children: [
             Icon(Icons.add, color: kGreen, size: 18),
             SizedBox(width: 6),
-            Text("Liên kết ngân hàng",
+            Text("Link your bank account",
                 style: TextStyle(color: kGreen, fontWeight: FontWeight.w600, fontSize: 13)),
           ],
         ),
@@ -659,7 +659,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _sectionLabel("Phân tích"),
+        _sectionLabel("Analysis"),
         const SizedBox(height: 12),
         if (r.isDesktop)
           Row(
@@ -701,7 +701,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _sectionLabel("Chi tiêu gần đây"),
+        _sectionLabel("Recent spending"),
         const SizedBox(height: 12),
         if (r.isDesktop)
           GridView.count(
@@ -766,11 +766,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(e.name, style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 13)),
-                  Text(e.category ?? "Khác", style: const TextStyle(color: Colors.grey, fontSize: 11)),
+                  Text(e.category ?? "Other", style: const TextStyle(color: Colors.grey, fontSize: 11)),
                 ],
               ),
             ),
-            Text("-${e.amount.toStringAsFixed(0)}đ",
+            Text("-${e.amount.toStringAsFixed(0)}vnđ",
                 style: const TextStyle(color: Color(0xFFE85454), fontWeight: FontWeight.bold, fontSize: 13)),
           ],
         ),
@@ -792,7 +792,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       title:    Text(e.name,            style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14)),
       subtitle: Text(e.category ?? "Khác", style: const TextStyle(color: Colors.grey, fontSize: 12)),
       trailing: Text(
-        "-${e.amount.toStringAsFixed(0)}đ",
+        "-${e.amount.toStringAsFixed(0)}vnđ",
         style: const TextStyle(color: Color(0xFFE85454), fontWeight: FontWeight.bold, fontSize: 13),
       ),
       onTap: () => editExpense(e),
@@ -815,10 +815,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
       elevation: 12,
       selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 11),
       items: const [
-        BottomNavigationBarItem(icon: Icon(Icons.grid_view_rounded),    label: "Tổng quan"),
-        BottomNavigationBarItem(icon: Icon(Icons.receipt_long_outlined), label: "Giao dịch"),
-        BottomNavigationBarItem(icon: Icon(Icons.pie_chart_outline),    label: "Ngân sách"),
-        BottomNavigationBarItem(icon: Icon(Icons.person_outline),       label: "Tôi"),
+        BottomNavigationBarItem(icon: Icon(Icons.grid_view_rounded),    label: "Overview"),
+        BottomNavigationBarItem(icon: Icon(Icons.receipt_long_outlined), label: "Transaction"),
+        BottomNavigationBarItem(icon: Icon(Icons.pie_chart_outline),    label: "Budget"),
+        BottomNavigationBarItem(icon: Icon(Icons.person_outline),       label: "Profile"),
       ],
     );
   }
@@ -862,20 +862,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Color _catColor(String? cat) {
     switch (cat?.toLowerCase()) {
-      case 'ăn uống':   return Colors.orange;
-      case 'mua sắm':   return Colors.purple;
-      case 'hóa đơn':   return Colors.blue;
-      case 'di chuyển': return Colors.teal;
+      case 'Foods':   return Colors.orange;
+      case 'Shopping':   return Colors.purple;
+      case 'Bills':   return Colors.blue;
+      case 'Travel': return Colors.teal;
       default:           return kGreen;
     }
   }
 
   IconData _catIcon(String? cat) {
     switch (cat?.toLowerCase()) {
-      case 'ăn uống':   return Icons.restaurant_outlined;
-      case 'mua sắm':   return Icons.shopping_bag_outlined;
-      case 'hóa đơn':   return Icons.receipt_outlined;
-      case 'di chuyển': return Icons.directions_car_outlined;
+      case 'Foods':   return Icons.restaurant_outlined;
+      case 'Shopping':   return Icons.shopping_bag_outlined;
+      case 'Bills':   return Icons.receipt_outlined;
+      case 'Travel': return Icons.directions_car_outlined;
       default:           return Icons.attach_money;
     }
   }
@@ -917,10 +917,10 @@ class _ManualBalanceSheet extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 20),
-          const Text("Nhập số dư thủ công",
+          const Text("Enter Manual",
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 4),
-          const Text("Số dư hiện tại trong tài khoản của bạn",
+          const Text("Your current account balance",
               style: TextStyle(color: Colors.grey, fontSize: 13)),
           const SizedBox(height: 20),
           TextField(
@@ -932,7 +932,7 @@ class _ManualBalanceSheet extends StatelessWidget {
             decoration: InputDecoration(
               hintText: "0",
               hintStyle: TextStyle(color: Colors.grey.shade300, fontSize: 32),
-              suffixText: "đ",
+              suffixText: "vnđ",
               suffixStyle: const TextStyle(color: kGreen, fontSize: 20, fontWeight: FontWeight.bold),
               border:        OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: kGreen)),
               focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: kGreen, width: 2)),
@@ -951,7 +951,7 @@ class _ManualBalanceSheet extends StatelessWidget {
                 final v = double.tryParse(controller.text) ?? 0;
                 if (v > 0) { onSave(v); Navigator.pop(context); }
               },
-              child: const Text("Lưu số dư",
+              child: const Text("Save balance",
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
             ),
           ),
@@ -960,7 +960,7 @@ class _ManualBalanceSheet extends StatelessWidget {
             width: double.infinity,
             child: TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text("Huỷ", style: TextStyle(color: Colors.grey)),
+              child: const Text("Cancel", style: TextStyle(color: Colors.grey)),
             ),
           ),
         ],
