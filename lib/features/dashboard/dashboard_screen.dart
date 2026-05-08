@@ -257,7 +257,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 : const Column(children: [
                     Icon(Icons.account_balance_wallet, color: kGreen, size: 32),
                     SizedBox(height: 6),
-                    Text("Fin Assist",
+                    Text("FINASSIST",
                         style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
                   ]),
           ),
