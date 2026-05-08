@@ -790,7 +790,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         child: Icon(_catIcon(e.category), color: _catColor(e.category), size: 20),
       ),
       title:    Text(e.name,            style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14)),
-      subtitle: Text(e.category ?? "Khác", style: const TextStyle(color: Colors.grey, fontSize: 12)),
+      subtitle: Text(e.category ?? "Other", style: const TextStyle(color: Colors.grey, fontSize: 12)),
       trailing: Text(
         "-${e.amount.toStringAsFixed(0)}vnđ",
         style: const TextStyle(color: Color(0xFFE85454), fontWeight: FontWeight.bold, fontSize: 13),
