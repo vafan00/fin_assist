@@ -260,11 +260,11 @@ class _AddExpenseDesktopState extends State<_AddExpenseDesktop>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _sectionLabel('Tên chi tiêu'),
+                      _sectionLabel('Expenditure name'),
                       const SizedBox(height: 8),
                       _desktopTextField(),
                       const SizedBox(height: 24),
-                      _sectionLabel('Danh mục'),
+                      _sectionLabel('Category'),
                       const SizedBox(height: 8),
                       _desktopCatGrid(),
                     ],
@@ -582,7 +582,7 @@ class _AddExpenseContentState extends State<_AddExpenseContent>
       ),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        const Text('TÊN CHI TIÊU',
+        const Text('Expenditure name',
           style: TextStyle(color: Colors.grey, fontSize: 10, fontWeight: FontWeight.w700, letterSpacing: 1)),
         const SizedBox(height: 6),
         TextField(
@@ -612,7 +612,7 @@ class _AddExpenseContentState extends State<_AddExpenseContent>
       ),
       padding: const EdgeInsets.all(14),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        const Text('DANH MỤC',
+        const Text('Category',
           style: TextStyle(color: Colors.grey, fontSize: 10, fontWeight: FontWeight.w700, letterSpacing: 1)),
         const SizedBox(height: 12),
         GridView.builder(
